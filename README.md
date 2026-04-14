@@ -1,4 +1,5 @@
 <img width="1920" height="1080" alt="2026-04-14_17 06 17" src="https://github.com/user-attachments/assets/037c3e0d-abae-4f8d-9859-82a5127bd437" />
+
 # Minecraft Бот-Спамер
 
 Node.js бот для Minecraft серверов, который позволяет создавать несколько ботов для одновременного подключения к серверу и спама сообщениями в чат.
