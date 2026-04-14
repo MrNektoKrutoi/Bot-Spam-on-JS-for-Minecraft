@@ -3,7 +3,7 @@ const readline = require('readline');
 
 // Функция для вывода рекламного сообщения и задержки
 async function displayAd() {
-  console.log('dev channel: TGK @');
+  console.log('dev channel: TGK @KRIK_TGK');
   await new Promise(resolve => setTimeout(resolve, 1500)); // Задержка 3 секунды
 }
 
