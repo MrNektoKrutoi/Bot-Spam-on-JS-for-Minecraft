@@ -1,10 +1,9 @@
 const mineflayer = require('mineflayer');
 const readline = require('readline');
 
-// Функция для вывода рекламного сообщения и задержки
 async function displayAd() {
   console.log('dev channel: TGK @KRIK_TGK');
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Задержка 3 секунды
+  await new Promise(resolve => setTimeout(resolve, 1500));
 }
 
 const rl = readline.createInterface({
@@ -13,9 +12,11 @@ const rl = readline.createInterface({
   prompt: ''
 });
 
-function cleanIp(ipAddress) {
-  const [cleanIp] = ipAddress.split(':');
-  return cleanIp;
+function parseAddress(addressInput) {
+  const parts = addressInput.split(':');
+  const host = parts[0];
+  const port = parts[1] ? parseInt(parts[1], 10) : 25565; 
+  return { host, port };
 }
 
 function askQuestion(question) {
@@ -39,15 +40,15 @@ function generateRandomMessage(length, existingNames) {
   return result;
 }
 
-function createBot(ipServer, usernameBase, serverVersion, index, messageInput, randomMessageLength, messageDelay, existingNames) {
+function createBot(host, port, usernameBase, serverVersion, index, messageInput, randomMessageLength, messageDelay, existingNames) {
   let username = usernameBase;
-  // Если индекс больше 0, добавляем к имени суффикс с индексом
   if (index > 0) {
     username += ' - ' + index;
   }
 
   const bot = mineflayer.createBot({
-    host: ipServer,
+    host: host,
+    port: port,          
     username: username,
     version: serverVersion
   });
@@ -70,11 +71,18 @@ function createBot(ipServer, usernameBase, serverVersion, index, messageInput, r
       }
     }
   });
+
+  bot.on('error', (err) => {
+    console.log(`[${username}] Ошибка: ${err.message}`);
+  });
 }
 
 async function startBot() {
   await displayAd();
-  const ipInput = await askQuestion('Введите IP-адрес сервера: ');
+  
+  const ipInput = await askQuestion('Введите IP-адрес сервера (можно с портом, например 127.0.0.1:25565): ');
+  const { host, port } = parseAddress(ipInput);  
+  
   let usernameBase = await askQuestion('Введите имя бота или /random для рандомного имени: ');
   let randomMessageLength = 0;
   let existingNames = [];
@@ -99,8 +107,6 @@ async function startBot() {
       messageDelay = parseInt(await askQuestion('Введите задержку между сообщениями (в миллисекундах): '), 10);
     }
 
-    const ipServer = cleanIp(ipInput);
-
     for (let i = 0; i < numberOfBots; i++) {
       let username;
       if (usernameBase === '/random') {
@@ -109,12 +115,12 @@ async function startBot() {
       } else {
         username = usernameBase;
       }
-      createBot(ipServer, username, serverVersion, i, messageInput, randomMessageLength, messageDelay, existingNames);
+      createBot(host, port, username, serverVersion, i, messageInput, randomMessageLength, messageDelay, existingNames);
     }
   } else {
     let index = 0;
     const createAndConnectBot = () => {
-      createBot(ipServer, usernameBase, serverVersion, index, null, 0, 0, existingNames);
+      createBot(host, port, usernameBase, serverVersion, index, null, 0, 0, existingNames);
       index++;
       setImmediate(createAndConnectBot);
     };
